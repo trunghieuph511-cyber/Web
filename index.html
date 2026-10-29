@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Eye · Nose · Mouth — góc học vui</title>
+<title>Bộ phận khuôn mặt — góc học vui</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -183,6 +183,19 @@ code{font-family:var(--font-mono);background:var(--color-paper-3);padding:1px 6p
 .big-pick[disabled]{cursor:default}
 .big-pick svg{width:clamp(56px,16vw,86px);height:auto;display:block}
 .hear{min-height:62px;font-size:1.15rem;padding:0 28px}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,4vw,40px);align-items:start}
+.col{display:grid;gap:14px}
+.pcard{font:inherit;font-weight:700;font-size:clamp(1.2rem,5vw,1.9rem);min-height:clamp(74px,18vw,98px);
+  display:grid;place-items:center;padding:12px;border-radius:20px;border:3px solid var(--color-line);
+  background:var(--color-paper);color:var(--color-ink);cursor:pointer;
+  transition:transform .15s ease,border-color .15s ease,background-color .15s ease}
+.pcard svg{width:clamp(40px,11vw,62px);height:auto;display:block}
+.pcard:hover{border-color:var(--color-accent);transform:translateY(-2px)}
+.pcard:focus-visible{outline:4px solid var(--color-accent);outline-offset:3px}
+.pcard.sel{border-color:var(--color-accent-deep);background:var(--color-paper-3);transform:scale(1.03)}
+.pcard.ok{border-color:var(--color-ok);background:var(--color-paper-3);cursor:default}
+.pcard.bad{border-color:var(--color-bad)}
+.pcard[disabled]{cursor:default}
 .items{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;
   padding:20px;min-height:130px;border:3px dashed var(--color-line);border-radius:var(--radius)}
 .items svg{width:clamp(48px,13vw,76px);height:auto;display:block}
@@ -197,16 +210,16 @@ code{font-family:var(--font-mono);background:var(--color-paper-3);padding:1px 6p
 </head>
 <body>
 <header class="top">
-  <span class="mark">Eye · Nose · Mouth</span>
+  <span class="mark">Face parts</span>
   <p class="hint"><span class="hint-key">Phím mũi tên hoặc WASD</span><span class="hint-touch">Vuốt trên mê cung hoặc dùng nút</span></p>
 </header>
 <nav class="tabs" role="tablist" aria-label="Chọn trò chơi">
   <button class="tab kid" role="tab" data-v="color" aria-selected="true">🎨 Tô màu</button>
   <button class="tab kid" role="tab" data-v="listen" aria-selected="false">👂 Nghe &amp; chỉ</button>
   <button class="tab kid" role="tab" data-v="count" aria-selected="false">🔢 Đếm</button>
+  <button class="tab kid" role="tab" data-v="match" aria-selected="false">🧩 Ghép đôi</button>
   <button class="tab" role="tab" data-v="maze" aria-selected="false">Mê cung</button>
   <button class="tab" role="tab" data-v="flash" aria-selected="false">Lật thẻ</button>
-  <button class="tab" role="tab" data-v="match" aria-selected="false">Ghép đôi</button>
   <button class="tab" role="tab" data-v="quiz" aria-selected="false">Đố vui</button>
   <button class="tab" role="tab" data-v="anagram" aria-selected="false">Xếp chữ</button>
   <button class="tab" role="tab" data-v="words" aria-selected="false">Bộ từ</button>
@@ -266,13 +279,13 @@ code{font-family:var(--font-mono);background:var(--color-paper-3);padding:1px 6p
 
 <main class="game" id="v-words" hidden>
   <h2>Bộ từ của bạn</h2>
-  <p class="lede">Mỗi dòng một cặp theo dạng <code>từ = nghĩa</code>. Bốn trò Lật thẻ, Ghép đôi, Đố vui và Xếp chữ đều dùng bộ từ này. Ba trò cho bé luôn dùng cố định <code>eye · nose · mouth</code>.</p>
+  <p class="lede">Mỗi dòng một cặp theo dạng <code>từ = nghĩa</code>. Bốn trò Lật thẻ, Ghép đôi, Đố vui và Xếp chữ đều dùng bộ từ này. Bốn trò cho bé luôn dùng cố định sáu từ: <code>eye · nose · mouth · ear · tongue · teeth</code>.</p>
   <textarea id="wordsTa" rows="8" spellcheck="false" aria-label="Danh sách từ"></textarea>
   <p class="count" id="wCount"></p>
-  <div class="row"><button class="btn primary" id="saveW">Lưu bộ từ</button><button class="btn" id="defW">Khôi phục eye · nose · mouth</button></div>
+  <div class="row"><button class="btn primary" id="saveW">Lưu bộ từ</button><button class="btn" id="defW">Khôi phục bộ từ mẫu</button></div>
 </main>
 
-<footer class="foot"><span>Ba trò đầu đọc eye, nose, mouth bằng tiếng Anh — hợp với bé 3–6 tuổi.</span><span>Bộ từ được lưu trong trình duyệt của bạn.</span></footer>
+<footer class="foot"><span>Bốn trò đầu đọc sáu từ về khuôn mặt bằng tiếng Anh — hợp với bé 3–6 tuổi.</span><span>Bộ từ được lưu trong trình duyệt của bạn.</span></footer>
 
 <script>
 (()=>{
@@ -423,7 +436,10 @@ newMaze();
 /* ===== Trò chơi từ vựng ===== */
 const DEF=`eye = mắt
 nose = mũi
-mouth = miệng`;
+mouth = miệng
+ear = tai
+tongue = lưỡi
+teeth = răng`;
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const parse=s=>s.split('\n').map(l=>{const i=l.indexOf('=');return i<0?{t:l.trim(),d:''}:{t:l.slice(0,i).trim(),d:l.slice(i+1).trim()}}).filter(w=>w.t);
 let saved=null;try{saved=localStorage.getItem('wordset')}catch(_){}
@@ -445,24 +461,6 @@ function flash(){
     GB.innerHTML=`<button class="card big" data-act="flip">${esc(f?w.d:w.t)}</button><p class="count">${i+1} / ${o.length}</p>`;
     GA.innerHTML=`<button class="btn" data-act="prev">‹ Trước</button><button class="btn" data-act="shuf">Trộn</button><button class="btn primary" data-act="next">Tiếp ›</button>`};
   act={flip(){f=!f;r()},prev(){i=(i-1+o.length)%o.length;f=false;r()},next(){i=(i+1)%o.length;f=false;r()},shuf(){o=shuffle(o);i=0;f=false;r()}};
-  r();
-}
-function match(){
-  head('Ghép đôi','Lật hai thẻ để tìm cặp từ và nghĩa.');if(need(2))return;
-  const ps=shuffle(pairs()).slice(0,8);
-  const cs=shuffle(ps.flatMap((p,i)=>[{i,k:'t',x:p.t},{i,k:'d',x:p.d}]));
-  let open=[],done=new Set(),mv=0,lock=false;
-  const r=msg=>{
-    GB.innerHTML=`<div class="grid">${cs.map((c,j)=>{const ok=done.has(c.i),up=ok||open.includes(j);
-      return `<button class="card${ok?' ok':''}${up?' up':''}" data-act="pick" data-j="${j}"${up?' disabled':''}>${up?esc(c.x):'?'}</button>`}).join('')}</div>
-      <p class="count" style="margin-top:12px">${msg||'Lượt lật: '+mv}</p>`;
-    GA.innerHTML=`<button class="btn primary" data-act="again">Chơi lại</button>`};
-  act={pick(b){
-    if(lock)return;open.push(+b.dataset.j);r();if(open.length<2)return;
-    mv++;const[a,c]=open.map(j=>cs[j]);
-    if(a.i===c.i&&a.k!==c.k){done.add(a.i);open=[];r(done.size===ps.length?`Hoàn thành sau ${mv} lượt!`:'')}
-    else{lock=true;setTimeout(()=>{open=[];lock=false;r()},800)}
-  },again:match};
   r();
 }
 function quiz(){
@@ -535,7 +533,14 @@ $('v-kid').addEventListener('click',ev=>{const b=ev.target.closest('[data-act]')
 const kHead=(t,h)=>{$('kTitle').textContent=t;$('kHelp').textContent=h};
 
 // ba từ trọng tâm
-const WORDS=[{k:'eye',en:'eye',pl:'eyes',vi:'mắt'},{k:'nose',en:'nose',pl:'noses',vi:'mũi'},{k:'mouth',en:'mouth',pl:'mouths',vi:'miệng'}];
+const WORDS=[
+ {k:'eye',en:'eye',pl:'eyes',vi:'mắt'},
+ {k:'nose',en:'nose',pl:'noses',vi:'mũi'},
+ {k:'mouth',en:'mouth',pl:'mouths',vi:'miệng'},
+ {k:'ear',en:'ear',pl:'ears',vi:'tai'},
+ {k:'tongue',en:'tongue',pl:'tongues',vi:'lưỡi'},
+ {k:'teeth',en:'teeth',pl:'teeth',vi:'răng',one:'tooth'}
+];
 const W=k=>WORDS.find(w=>w.k===k);
 
 // khuôn mặt dùng chung cho trò Tô màu và trò Nghe & chỉ
@@ -545,8 +550,10 @@ const FP=[
  {k:'face',en:'face',vi:'khuôn mặt',s:'<ellipse cx="160" cy="180" rx="132" ry="152"/>'},
  {k:'hair',en:'hair',vi:'tóc',s:'<path d="M30 156 Q42 34 160 30 Q278 34 290 156 Q250 92 160 88 Q70 92 30 156 Z"/>'},
  {k:'eye',en:'eye',vi:'mắt',s:'<ellipse cx="112" cy="156" rx="30" ry="24"/><ellipse cx="208" cy="156" rx="30" ry="24"/>'},
- {k:'nose',en:'nose',vi:'mũi',s:'<path d="M160 166 L186 218 Q160 230 134 218 Z"/>'},
- {k:'mouth',en:'mouth',vi:'miệng',s:'<path d="M102 252 Q160 310 218 252 Q160 278 102 252 Z"/>'}
+ {k:'nose',en:'nose',vi:'mũi',s:'<path d="M160 162 L186 212 Q160 224 134 212 Z"/>'},
+ {k:'mouth',en:'mouth',vi:'miệng',s:'<ellipse cx="160" cy="268" rx="60" ry="38"/>'},
+ {k:'teeth',en:'teeth',vi:'răng',s:'<rect x="112" y="250" width="96" height="19" rx="5"/>'},
+ {k:'tongue',en:'tongue',vi:'lưỡi',s:'<ellipse cx="160" cy="288" rx="38" ry="17"/>'}
 ];
 const PUPILS='<circle data-fix cx="112" cy="156" r="11" fill="#33302f"/><circle data-fix cx="208" cy="156" r="11" fill="#33302f"/>';
 const faceSvg=fills=>{
@@ -562,7 +569,10 @@ const faceSvg=fills=>{
 const ICON={
  eye:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="35" cy="35" rx="31" ry="21" fill="#fff" stroke="#33302f" stroke-width="4"/><circle cx="35" cy="35" r="11" fill="#33302f"/></svg>',
  nose:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M35 8 L56 54 Q35 64 14 54 Z" fill="#f7d7c4" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><circle cx="26" cy="50" r="4" fill="#33302f"/><circle cx="44" cy="50" r="4" fill="#33302f"/></svg>',
- mouth:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 26 Q35 66 64 26 Q35 42 6 26 Z" fill="#e8607a" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/></svg>'
+ mouth:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 26 Q35 66 64 26 Q35 42 6 26 Z" fill="#e8607a" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/></svg>',
+ ear:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M44 6 C22 6 14 24 16 40 C18 54 25 66 35 64 C43 62 40 52 45 47 C54 39 58 26 55 17 C53 10 49 6 44 6 Z" fill="#fde4d3" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><path d="M40 20 C30 20 27 28 29 36 C30 42 33 46 36 46" fill="none" stroke="#33302f" stroke-width="4" stroke-linecap="round"/></svg>',
+ tongue:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M35 6 C53 6 61 20 59 37 C57 53 47 64 35 64 C23 64 13 53 11 37 C9 20 17 6 35 6 Z" fill="#ef7f96" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><path d="M35 30 L35 56" fill="none" stroke="#33302f" stroke-width="4" stroke-linecap="round"/></svg>',
+ teeth:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="7" y="17" width="56" height="36" rx="8" fill="#fff" stroke="#33302f" stroke-width="4"/><path d="M25 17 L25 53 M45 17 L45 53 M7 35 L63 35" fill="none" stroke="#33302f" stroke-width="4"/></svg>'
 };
 const NUM=['one','two','three','four','five','six','seven','eight','nine','ten'];
 const COLORS=[['red','#e23b3b'],['orange','#f28a21'],['yellow','#f6d32d'],['green','#3bb54a'],['blue','#2f7fd4'],
@@ -570,7 +580,7 @@ const COLORS=[['red','#e23b3b'],['orange','#f28a21'],['yellow','#f6d32d'],['gree
 
 /* 1 — Tô màu khuôn mặt */
 function colorGame(){
-  kHead('Tô màu khuôn mặt','Chọn một màu rồi bấm vào mắt, mũi hoặc miệng. Mỗi lần tô, máy đọc tên bộ phận bằng tiếng Anh.');
+  kHead('Tô màu khuôn mặt','Chọn một màu rồi bấm vào từng bộ phận. Mỗi lần tô, máy đọc tên bộ phận bằng tiếng Anh.');
   let ci=0,fills={};
   const bind=()=>{
     KB.querySelectorAll('[data-k]').forEach(nd=>{
@@ -611,7 +621,7 @@ function listenGame(){
     q=pool[Math.random()*pool.length|0];lock=false;
     KB.innerHTML=`<p class="count score">⭐ ${sc}</p>
       <div class="row"><button class="btn primary hear" data-act="hear">🔊 Nghe lại</button></div>
-      <div class="art pick">${faceSvg({face:'#fde4d3',hair:'#5b3a2e',eye:'#ffffff',nose:'#f7d7c4',mouth:'#e8607a',ear:'#fde4d3'})}</div>
+      <div class="art pick">${faceSvg({face:'#fde4d3',hair:'#5b3a2e',eye:'#ffffff',nose:'#f7d7c4',mouth:'#b03b52',teeth:'#ffffff',tongue:'#ef7f96',ear:'#fde4d3'})}</div>
       <p class="msg" id="kMsg">&nbsp;</p>`;
     KA.innerHTML='';
     KB.querySelectorAll('[data-k]').forEach(nd=>nd.addEventListener('click',()=>hit(nd)));
@@ -660,10 +670,10 @@ function countGame(){
       if(+b.dataset.n===cnt){
         lock=true;sc++;b.classList.add('ok');
         KB.querySelectorAll('.big-pick').forEach(x=>x.disabled=true);
-        const said=cnt+' '+(cnt===1?w.en:w.pl);
-        $('kMsg').textContent='Đúng rồi! '+NUM[cnt-1]+' '+(cnt===1?w.en:w.pl)+' — '+cnt+' '+w.vi;
+        const form=cnt===1?(w.one||w.en):w.pl;
+        $('kMsg').textContent='Đúng rồi! '+NUM[cnt-1]+' '+form+' — '+cnt+' '+w.vi;
         $('kMsg').className='msg good';
-        say(NUM[cnt-1]+' '+(cnt===1?w.en:w.pl));
+        say(NUM[cnt-1]+' '+form);
         setTimeout(next,2000);
       }else{
         b.classList.add('no');b.disabled=true;
@@ -675,8 +685,48 @@ function countGame(){
   next();
 }
 
-const games={flash,match,quiz,anagram};
-const kidGames={color:colorGame,listen:listenGame,count:countGame};
+/* 4 — Ghép ảnh với từ, mọi thẻ đều hiện sẵn */
+function pairGame(){
+  kHead('Ghép đôi','Bấm vào một hình rồi bấm vào từ tiếng Anh đi cùng. Tất cả đều hiện sẵn, bé không phải nhớ.');
+  let L=shuffle(WORDS.slice()),R=shuffle(WORDS.slice());
+  let selL=null,selR=null,badK=null,done=new Set(),lock=false;
+  const r=msg=>{
+    const cell=(w,side)=>{
+      const ok=done.has(w.k),sel=(side==='l'?selL:selR)===w.k,bad=badK===w.k;
+      return `<button class="pcard${side==='r'?' word':''}${ok?' ok':''}${sel?' sel':''}${bad?' bad':''}"
+        data-act="${side}" data-k="${w.k}"${ok?' disabled':''}>${side==='l'?ICON[w.k]:esc(w.en)}</button>`;
+    };
+    KB.innerHTML=`<p class="count score">Đã ghép: ${done.size} / ${WORDS.length}</p>
+      <div class="pairs">
+        <div class="col">${L.map(w=>cell(w,'l')).join('')}</div>
+        <div class="col">${R.map(w=>cell(w,'r')).join('')}</div>
+      </div>
+      <p class="msg${msg?' '+msg[0]:''}" id="kMsg">${msg?msg[1]:'&nbsp;'}</p>`;
+    KA.innerHTML=done.size===WORDS.length?`<button class="btn primary" data-act="again">Chơi lại</button>`:'';
+  };
+  const check=()=>{
+    if(selL===null||selR===null)return;
+    const a=selL,b=selR;
+    if(a===b){
+      const w=W(a);done.add(a);selL=selR=null;say(w.en);
+      r(done.size===WORDS.length?['good','Giỏi lắm! Bé đã ghép đúng hết.']:['good','Đúng rồi! '+w.en+' — '+w.vi]);
+      if(done.size===WORDS.length)setTimeout(()=>say('Very good!'),900);
+    }else{
+      lock=true;badK=b;say('Try again',.85);
+      r(['bad','Chưa đúng, thử lại nhé']);
+      setTimeout(()=>{badK=null;selL=selR=null;lock=false;r()},800);
+    }
+  };
+  kAct={
+    l(b){if(lock||done.has(b.dataset.k))return;selL=b.dataset.k;r();say(W(selL).en);check()},
+    r(b){if(lock||done.has(b.dataset.k))return;selR=b.dataset.k;r();say(W(selR).en);check()},
+    again(){L=shuffle(WORDS.slice());R=shuffle(WORDS.slice());selL=selR=badK=null;done=new Set();lock=false;r()}
+  };
+  r();
+}
+
+const games={flash,quiz,anagram};
+const kidGames={color:colorGame,listen:listenGame,count:countGame,match:pairGame};
 function show(v){
   if(synth)synth.cancel();
   $('v-maze').hidden=v!=='maze';
