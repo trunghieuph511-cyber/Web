@@ -205,17 +205,42 @@ code{font-family:var(--font-mono);background:var(--color-paper-3);padding:1px 6p
   .lede{max-width:none}
   .hint{display:none}
 }
+
+/* ===== Bảng nhập bộ từ ===== */
+.sel{font:inherit;font-weight:600;min-height:46px;padding:0 14px;border-radius:999px;
+  border:2px solid var(--color-line);background:var(--color-paper);color:var(--color-ink);max-width:100%}
+.sel:focus-visible{outline:3px solid var(--color-accent);outline-offset:2px}
+.wrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;
+  padding:12px 0;border-top:1px solid var(--color-line)}
+.wfields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
+@media (max-width:620px){.wfields{grid-template-columns:1fr}}
+.inp{font:inherit;min-height:44px;padding:0 12px;border-radius:12px;border:2px solid var(--color-line);
+  background:var(--color-paper);color:var(--color-ink);width:100%;min-width:0}
+.inp:focus-visible{outline:3px solid var(--color-accent);outline-offset:2px}
+.thumb{width:68px;height:68px;flex:none;border-radius:14px;border:2px dashed var(--color-line);
+  background:var(--color-paper-2);cursor:pointer;display:grid;place-items:center;overflow:hidden;
+  padding:0;font:inherit;font-size:.72rem;font-weight:700;color:var(--color-ink-2)}
+.thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.thumb:hover{border-color:var(--color-accent)}
+.thumb:focus-visible{outline:3px solid var(--color-accent);outline-offset:3px}
+.btn.x{min-height:40px;padding:0 14px;border-color:var(--color-line);color:var(--color-ink-2)}
+.ro{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.ro span{font-weight:700;padding:8px 16px;border-radius:999px;background:var(--color-paper-2)}
+.noimg{font-size:1rem;font-weight:700;color:var(--color-ink-2);text-align:center;padding:4px;overflow-wrap:anywhere}
+.big-pick img{width:clamp(56px,16vw,86px);height:clamp(56px,16vw,86px);object-fit:contain;display:block}
+.pcard img{width:clamp(40px,11vw,62px);height:clamp(40px,11vw,62px);object-fit:contain;display:block}
+.items img{width:clamp(48px,13vw,76px);height:clamp(48px,13vw,76px);object-fit:contain;display:block}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <header class="top">
-  <span class="mark">Face parts</span>
+  <span class="mark" id="deckMark">Góc học vui</span>
   <p class="hint"><span class="hint-key">Phím mũi tên hoặc WASD</span><span class="hint-touch">Vuốt trên mê cung hoặc dùng nút</span></p>
 </header>
 <nav class="tabs" role="tablist" aria-label="Chọn trò chơi">
-  <button class="tab kid" role="tab" data-v="color" aria-selected="true">🎨 Tô màu</button>
-  <button class="tab kid" role="tab" data-v="listen" aria-selected="false">👂 Nghe &amp; chỉ</button>
+  <button class="tab kid" role="tab" id="tab-color" data-v="color" aria-selected="true">🎨 Tô màu</button>
+  <button class="tab kid" role="tab" data-v="listen" aria-selected="false">👂 Nghe &amp; chọn</button>
   <button class="tab kid" role="tab" data-v="count" aria-selected="false">🔢 Đếm</button>
   <button class="tab kid" role="tab" data-v="match" aria-selected="false">🧩 Ghép đôi</button>
   <button class="tab" role="tab" data-v="maze" aria-selected="false">Mê cung</button>
@@ -278,14 +303,26 @@ code{font-family:var(--font-mono);background:var(--color-paper-3);padding:1px 6p
 </main>
 
 <main class="game" id="v-words" hidden>
-  <h2>Bộ từ của bạn</h2>
-  <p class="lede">Mỗi dòng một cặp theo dạng <code>từ = nghĩa</code>. Bốn trò Lật thẻ, Ghép đôi, Đố vui và Xếp chữ đều dùng bộ từ này. Bốn trò cho bé luôn dùng cố định sáu từ: <code>eye · nose · mouth · ear · tongue · teeth</code>.</p>
-  <textarea id="wordsTa" rows="8" spellcheck="false" aria-label="Danh sách từ"></textarea>
-  <p class="count" id="wCount"></p>
-  <div class="row"><button class="btn primary" id="saveW">Lưu bộ từ</button><button class="btn" id="defW">Khôi phục bộ từ mẫu</button></div>
+  <h2>Bộ từ &amp; hình ảnh</h2>
+  <p class="lede" id="wLede"></p>
+  <div class="row">
+    <select class="sel" id="deckSel" aria-label="Chọn chủ đề"></select>
+    <button class="btn" data-w="new">+ Chủ đề mới</button>
+    <button class="btn" data-w="rename">Đổi tên</button>
+    <button class="btn" data-w="del">Xóa chủ đề</button>
+  </div>
+  <div id="wRows"></div>
+  <div class="row" id="wAdd"></div>
+  <p class="msg" id="wMsg">&nbsp;</p>
+  <div class="row">
+    <button class="btn primary" data-w="exp">⬇ Xuất ra file</button>
+    <button class="btn" data-w="imp">⬆ Nhập từ file</button>
+  </div>
+  <input type="file" id="impFile" accept="application/json,.json" hidden>
+  <input type="file" id="imgFile" accept="image/*" hidden>
 </main>
 
-<footer class="foot"><span>Bốn trò đầu đọc sáu từ về khuôn mặt bằng tiếng Anh — hợp với bé 3–6 tuổi.</span><span>Bộ từ được lưu trong trình duyệt của bạn.</span></footer>
+<footer class="foot"><span>Bốn trò đầu đọc từ bằng tiếng Anh — hợp với bé 3–6 tuổi.</span><span>Bộ từ lưu trong trình duyệt này. Dùng Xuất ra file để mang sang máy khác.</span></footer>
 
 <script>
 (()=>{
@@ -433,24 +470,85 @@ new ResizeObserver(draw).observe(cv);
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
 newMaze();
 
-/* ===== Trò chơi từ vựng ===== */
-const DEF=`eye = mắt
-nose = mũi
-mouth = miệng
-ear = tai
-tongue = lưỡi
-teeth = răng`;
-const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const parse=s=>s.split('\n').map(l=>{const i=l.indexOf('=');return i<0?{t:l.trim(),d:''}:{t:l.slice(0,i).trim(),d:l.slice(i+1).trim()}}).filter(w=>w.t);
-let saved=null;try{saved=localStorage.getItem('wordset')}catch(_){}
-let words=parse(saved||DEF);
-const pairs=()=>words.filter(w=>w.d);
+/* ===== Bộ từ dùng chung cho mọi trò ===== */
+const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// hình vẽ sẵn của chủ đề khuôn mặt
+const FACE_VB='0 0 320 340';
+const FP=[
+ {k:'ear',en:'ear',vi:'tai',s:'<ellipse cx="28" cy="185" rx="22" ry="35"/><ellipse cx="292" cy="185" rx="22" ry="35"/>'},
+ {k:'face',en:'face',vi:'khuôn mặt',s:'<ellipse cx="160" cy="180" rx="132" ry="152"/>'},
+ {k:'hair',en:'hair',vi:'tóc',s:'<path d="M30 156 Q42 34 160 30 Q278 34 290 156 Q250 92 160 88 Q70 92 30 156 Z"/>'},
+ {k:'eye',en:'eye',vi:'mắt',s:'<ellipse cx="112" cy="156" rx="30" ry="24"/><ellipse cx="208" cy="156" rx="30" ry="24"/>'},
+ {k:'nose',en:'nose',vi:'mũi',s:'<path d="M160 162 L186 212 Q160 224 134 212 Z"/>'},
+ {k:'mouth',en:'mouth',vi:'miệng',s:'<ellipse cx="160" cy="268" rx="60" ry="38"/>'},
+ {k:'teeth',en:'teeth',vi:'răng',s:'<rect x="112" y="250" width="96" height="19" rx="5"/>'},
+ {k:'tongue',en:'tongue',vi:'lưỡi',s:'<ellipse cx="160" cy="288" rx="38" ry="17"/>'}
+];
+const PUPILS='<circle data-fix cx="112" cy="156" r="11" fill="#33302f"/><circle data-fix cx="208" cy="156" r="11" fill="#33302f"/>';
+const TEETHLINE='<path data-fix d="M136 250 L136 269 M160 250 L160 269 M184 250 L184 269" fill="none" stroke="#33302f" stroke-width="3"/>';
+const faceSvg=fills=>{
+  let out='';
+  FP.forEach(p=>{
+    out+=p.s.replace(/<(ellipse|path|circle|rect)/g,`<$1 data-k="${p.k}" fill="${(fills&&fills[p.k])||'#ffffff'}"`);
+    if(p.k==='eye')out+=PUPILS;
+    if(p.k==='teeth')out+=TEETHLINE;
+  });
+  return `<svg viewBox="${FACE_VB}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Khuôn mặt">${out}</svg>`;
+};
+const FACE_FILL={face:'#fde4d3',hair:'#5b3a2e',eye:'#ffffff',nose:'#f7d7c4',mouth:'#b03b52',teeth:'#ffffff',tongue:'#ef7f96',ear:'#fde4d3'};
+
+// biểu tượng vẽ sẵn, chỉ dùng cho chủ đề khuôn mặt
+const ICON={
+ eye:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="35" cy="35" rx="31" ry="21" fill="#fff" stroke="#33302f" stroke-width="4"/><circle cx="35" cy="35" r="11" fill="#33302f"/></svg>',
+ nose:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M35 8 L56 54 Q35 64 14 54 Z" fill="#f7d7c4" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><circle cx="26" cy="50" r="4" fill="#33302f"/><circle cx="44" cy="50" r="4" fill="#33302f"/></svg>',
+ mouth:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 26 Q35 66 64 26 Q35 42 6 26 Z" fill="#e8607a" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/></svg>',
+ ear:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M44 6 C22 6 14 24 16 40 C18 54 25 66 35 64 C43 62 40 52 45 47 C54 39 58 26 55 17 C53 10 49 6 44 6 Z" fill="#fde4d3" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><path d="M40 20 C30 20 27 28 29 36 C30 42 33 46 36 46" fill="none" stroke="#33302f" stroke-width="4" stroke-linecap="round"/></svg>',
+ tongue:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M35 6 C53 6 61 20 59 37 C57 53 47 64 35 64 C23 64 13 53 11 37 C9 20 17 6 35 6 Z" fill="#ef7f96" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><path d="M35 30 L35 56" fill="none" stroke="#33302f" stroke-width="4" stroke-linecap="round"/></svg>',
+ teeth:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="7" y="17" width="56" height="36" rx="8" fill="#fff" stroke="#33302f" stroke-width="4"/><path d="M25 17 L25 53 M45 17 L45 53 M7 35 L63 35" fill="none" stroke="#33302f" stroke-width="4"/></svg>'
+};
+const NUM=['one','two','three','four','five','six','seven','eight','nine','ten'];
+const COLORS=[['red','#e23b3b'],['orange','#f28a21'],['yellow','#f6d32d'],['green','#3bb54a'],['blue','#2f7fd4'],
+              ['purple','#8d59c7'],['pink','#f08ab5'],['brown','#8a5a2b'],['black','#2b2b2b'],['white','#ffffff']];
+
+// chủ đề làm sẵn: có hình vẽ vector nên tô màu được
+const FACE={id:'face',name:'Khuôn mặt (hình vẽ sẵn)',builtin:true,items:[
+ {k:'eye',en:'eye',pl:'eyes',vi:'mắt'},
+ {k:'nose',en:'nose',pl:'noses',vi:'mũi'},
+ {k:'mouth',en:'mouth',pl:'mouths',vi:'miệng'},
+ {k:'ear',en:'ear',pl:'ears',vi:'tai'},
+ {k:'tongue',en:'tongue',pl:'tongues',vi:'lưỡi'},
+ {k:'teeth',en:'teeth',pl:'teeth',one:'tooth',vi:'răng'}
+]};
+
+const KEY='gocHocVui.decks';
+let store={active:'face',decks:[]};
+try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){const o=JSON.parse(raw);if(o&&Array.isArray(o.decks))store={active:o.active||'face',decks:o.decks}}
+}catch(_){}
+const allDecks=()=>[FACE].concat(store.decks);
+const deck=()=>allDecks().find(d=>d.id===store.active)||FACE;
+const persist=()=>{
+  try{localStorage.setItem(KEY,JSON.stringify(store));return''}
+  catch(_){return 'Không lưu được: bộ từ quá lớn cho trình duyệt. Bớt vài ảnh, hoặc xuất ra file rồi xóa chủ đề cũ.'}
+};
+const uid=()=>'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const plural=it=>it.pl||it.en+'s';
+const single=it=>it.one||it.en;
+const pic=it=>it.img?`<img src="${it.img}" alt="${esc(it.en)}">`:(it.k&&ICON[it.k])||`<span class="noimg">${esc(it.en)}</span>`;
+const slug=v=>String(v).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+  .replace(/đ/g,'d').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'bo-tu';
+
+/* ===== Trò chơi từ vựng cho học sinh lớn ===== */
 const GB=$('gBody'),GA=$('gAct');
 let act={};
 const head=(t,h)=>{$('gTitle').textContent=t;$('gHelp').textContent=h};
+const pairs=()=>deck().items.filter(i=>i.en&&i.vi).map(i=>({t:i.en,d:i.vi}));
 const need=k=>{
   if(pairs().length>=k)return false;
-  GB.innerHTML=`<p class="msg">Cần ít nhất ${k} từ có nghĩa (dạng “từ = nghĩa”). Vào tab Bộ từ để thêm.</p>`;GA.innerHTML='';return true;
+  GB.innerHTML=`<p class="msg">Chủ đề “${esc(deck().name)}” cần ít nhất ${k} từ có cả tiếng Anh và nghĩa tiếng Việt. Vào tab Bộ từ để thêm.</p>`;
+  GA.innerHTML='';return true;
 };
 $('v-game').addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');if(b&&act[b.dataset.act])act[b.dataset.act](b)});
 
@@ -468,7 +566,7 @@ function quiz(){
   const q=shuffle(pairs());let i=0,sc=0,ans=false;
   const r=()=>{
     if(i>=q.length){GB.innerHTML=`<p class="msg good">Điểm của bạn: ${sc} / ${q.length}</p>`;GA.innerHTML=`<button class="btn primary" data-act="again">Chơi lại</button>`;return}
-    const w=q[i],opts=shuffle([w,...shuffle(pairs().filter(p=>p!==w)).slice(0,3)]);
+    const w=q[i],opts=shuffle([w].concat(shuffle(pairs().filter(p=>p!==w)).slice(0,3)));
     GB.innerHTML=`<p class="count">Câu ${i+1} / ${q.length}</p><div class="card big static">${esc(w.t)}</div>
       <div class="opts">${opts.map(o=>`<button class="btn opt" data-act="opt" data-c="${o===w?1:0}">${esc(o.d)}</button>`).join('')}</div>`;
     GA.innerHTML='';ans=false};
@@ -481,8 +579,8 @@ function quiz(){
 }
 function anagram(){
   head('Xếp chữ','Bấm các chữ cái theo đúng thứ tự để ghép thành từ.');
-  const ws=words.filter(w=>w.t.replace(/\s/g,'').length>1);
-  if(!ws.length){GB.innerHTML='<p class="msg">Chưa có từ nào dài hơn một chữ cái. Vào tab Bộ từ để thêm.</p>';GA.innerHTML='';return}
+  const ws=pairs().filter(w=>w.t.replace(/\s/g,'').length>1);
+  if(!ws.length){GB.innerHTML='<p class="msg">Chủ đề này chưa có từ nào dài hơn một chữ cái. Vào tab Bộ từ để thêm.</p>';GA.innerHTML='';return}
   const o=shuffle(ws.slice());let i=0,sc=0,pk=[],tiles=[],target='',done=false;
   const r=()=>{
     const w=o[i%o.length],full=pk.length===target.length;
@@ -503,7 +601,7 @@ function anagram(){
   next();
 }
 
-/* ===== Ba trò cho bé: eye · nose · mouth ===== */
+/* ===== Bốn trò cho bé ===== */
 const KB=$('kBody'),KA=$('kAct');
 let kAct={},snd=true,voice=null;
 const synth=window.speechSynthesis||null;
@@ -531,54 +629,13 @@ $('kSnd').addEventListener('click',()=>{
 });
 $('v-kid').addEventListener('click',ev=>{const b=ev.target.closest('[data-act]');if(b&&kAct[b.dataset.act])kAct[b.dataset.act](b)});
 const kHead=(t,h)=>{$('kTitle').textContent=t;$('kHelp').textContent=h};
-
-// ba từ trọng tâm
-const WORDS=[
- {k:'eye',en:'eye',pl:'eyes',vi:'mắt'},
- {k:'nose',en:'nose',pl:'noses',vi:'mũi'},
- {k:'mouth',en:'mouth',pl:'mouths',vi:'miệng'},
- {k:'ear',en:'ear',pl:'ears',vi:'tai'},
- {k:'tongue',en:'tongue',pl:'tongues',vi:'lưỡi'},
- {k:'teeth',en:'teeth',pl:'teeth',vi:'răng',one:'tooth'}
-];
-const W=k=>WORDS.find(w=>w.k===k);
-
-// khuôn mặt dùng chung cho trò Tô màu và trò Nghe & chỉ
-const FACE_VB='0 0 320 340';
-const FP=[
- {k:'ear',en:'ear',vi:'tai',s:'<ellipse cx="28" cy="185" rx="22" ry="35"/><ellipse cx="292" cy="185" rx="22" ry="35"/>'},
- {k:'face',en:'face',vi:'khuôn mặt',s:'<ellipse cx="160" cy="180" rx="132" ry="152"/>'},
- {k:'hair',en:'hair',vi:'tóc',s:'<path d="M30 156 Q42 34 160 30 Q278 34 290 156 Q250 92 160 88 Q70 92 30 156 Z"/>'},
- {k:'eye',en:'eye',vi:'mắt',s:'<ellipse cx="112" cy="156" rx="30" ry="24"/><ellipse cx="208" cy="156" rx="30" ry="24"/>'},
- {k:'nose',en:'nose',vi:'mũi',s:'<path d="M160 162 L186 212 Q160 224 134 212 Z"/>'},
- {k:'mouth',en:'mouth',vi:'miệng',s:'<ellipse cx="160" cy="268" rx="60" ry="38"/>'},
- {k:'teeth',en:'teeth',vi:'răng',s:'<rect x="112" y="250" width="96" height="19" rx="5"/>'},
- {k:'tongue',en:'tongue',vi:'lưỡi',s:'<ellipse cx="160" cy="288" rx="38" ry="17"/>'}
-];
-const PUPILS='<circle data-fix cx="112" cy="156" r="11" fill="#33302f"/><circle data-fix cx="208" cy="156" r="11" fill="#33302f"/>';
-const faceSvg=fills=>{
-  let out='';
-  FP.forEach(p=>{
-    out+=p.s.replace(/<(ellipse|path|circle|rect)/g,`<$1 data-k="${p.k}" fill="${(fills&&fills[p.k])||'#ffffff'}"`);
-    if(p.k==='eye')out+=PUPILS;
-  });
-  return `<svg viewBox="${FACE_VB}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Khuôn mặt với mắt, mũi, miệng">${out}</svg>`;
+const kNeed=n=>{
+  if(deck().items.length>=n)return false;
+  KB.innerHTML=`<p class="msg">Chủ đề “${esc(deck().name)}” cần ít nhất ${n} từ. Vào tab Bộ từ để thêm từ và ảnh.</p>`;
+  KA.innerHTML='';return true;
 };
 
-// biểu tượng nhỏ cho trò Đếm và các ô chọn
-const ICON={
- eye:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="35" cy="35" rx="31" ry="21" fill="#fff" stroke="#33302f" stroke-width="4"/><circle cx="35" cy="35" r="11" fill="#33302f"/></svg>',
- nose:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M35 8 L56 54 Q35 64 14 54 Z" fill="#f7d7c4" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><circle cx="26" cy="50" r="4" fill="#33302f"/><circle cx="44" cy="50" r="4" fill="#33302f"/></svg>',
- mouth:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 26 Q35 66 64 26 Q35 42 6 26 Z" fill="#e8607a" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/></svg>',
- ear:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M44 6 C22 6 14 24 16 40 C18 54 25 66 35 64 C43 62 40 52 45 47 C54 39 58 26 55 17 C53 10 49 6 44 6 Z" fill="#fde4d3" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><path d="M40 20 C30 20 27 28 29 36 C30 42 33 46 36 46" fill="none" stroke="#33302f" stroke-width="4" stroke-linecap="round"/></svg>',
- tongue:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M35 6 C53 6 61 20 59 37 C57 53 47 64 35 64 C23 64 13 53 11 37 C9 20 17 6 35 6 Z" fill="#ef7f96" stroke="#33302f" stroke-width="4" stroke-linejoin="round"/><path d="M35 30 L35 56" fill="none" stroke="#33302f" stroke-width="4" stroke-linecap="round"/></svg>',
- teeth:'<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="7" y="17" width="56" height="36" rx="8" fill="#fff" stroke="#33302f" stroke-width="4"/><path d="M25 17 L25 53 M45 17 L45 53 M7 35 L63 35" fill="none" stroke="#33302f" stroke-width="4"/></svg>'
-};
-const NUM=['one','two','three','four','five','six','seven','eight','nine','ten'];
-const COLORS=[['red','#e23b3b'],['orange','#f28a21'],['yellow','#f6d32d'],['green','#3bb54a'],['blue','#2f7fd4'],
-              ['purple','#8d59c7'],['pink','#f08ab5'],['brown','#8a5a2b'],['black','#2b2b2b'],['white','#ffffff']];
-
-/* 1 — Tô màu khuôn mặt */
+/* 1 — Tô màu khuôn mặt (chỉ chủ đề làm sẵn) */
 function colorGame(){
   kHead('Tô màu khuôn mặt','Chọn một màu rồi bấm vào từng bộ phận. Mỗi lần tô, máy đọc tên bộ phận bằng tiếng Anh.');
   let ci=0,fills={};
@@ -588,7 +645,7 @@ function colorGame(){
       nd.addEventListener('click',()=>{
         fills[k]=COLORS[ci][1];
         KB.querySelectorAll(`[data-k="${k}"]`).forEach(x=>x.setAttribute('fill',COLORS[ci][1]));
-        say(W(k)?COLORS[ci][0]+' '+p.en:COLORS[ci][0]);
+        say(COLORS[ci][0]+' '+p.en);
       });
     });
   };
@@ -598,7 +655,7 @@ function colorGame(){
         `<button class="sw" data-act="col" data-i="${i}" aria-pressed="${i===ci}" title="${en}"><i style="background:${hex}"></i><span>${en}</span></button>`).join('')}</div>
       <p class="count">Màu đang chọn: <strong>${COLORS[ci][0]}</strong> · Bấm vào hình để tô</p>
       <div class="art pick">${faceSvg(fills)}</div>
-      <div class="wordchips">${WORDS.map(w=>`<button class="chip" data-act="hearW" data-k="${w.k}">🔊 ${w.en} — ${w.vi}</button>`).join('')}</div>`;
+      <div class="wordchips">${deck().items.map(w=>`<button class="chip" data-act="hearW" data-i="${w.en}">🔊 ${esc(w.en)} — ${esc(w.vi)}</button>`).join('')}</div>`;
     KA.innerHTML=`<button class="btn" data-act="clr">Xóa hết màu</button>
       <button class="btn primary hear" data-act="hearC">🔊 ${COLORS[ci][0]}</button>`;
     bind();
@@ -607,21 +664,24 @@ function colorGame(){
     col(b){ci=+b.dataset.i;r();say(COLORS[ci][0])},
     clr(){fills={};r()},
     hearC(){say(COLORS[ci][0])},
-    hearW(b){say(W(b.dataset.k).en)}
+    hearW(b){say(b.dataset.i)}
   };
   r();
 }
 
-/* 2 — Nghe và chỉ đúng bộ phận trên khuôn mặt */
-function listenGame(){
+/* 2 — Nghe rồi chỉ / chọn */
+function listenGame(){deck().builtin?listenFace():listenPick()}
+
+function listenFace(){
   kHead('Nghe và chỉ','Máy nói “Touch the nose!”, bé bấm vào đúng bộ phận trên khuôn mặt. Bấm nút loa để nghe lại.');
+  const items=deck().items;
   let sc=0,q=null,lock=false;
   const ask=()=>{
-    const pool=q?WORDS.filter(w=>w.k!==q.k):WORDS;
+    const pool=q?items.filter(w=>w.en!==q.en):items;
     q=pool[Math.random()*pool.length|0];lock=false;
     KB.innerHTML=`<p class="count score">⭐ ${sc}</p>
       <div class="row"><button class="btn primary hear" data-act="hear">🔊 Nghe lại</button></div>
-      <div class="art pick">${faceSvg({face:'#fde4d3',hair:'#5b3a2e',eye:'#ffffff',nose:'#f7d7c4',mouth:'#b03b52',teeth:'#ffffff',tongue:'#ef7f96',ear:'#fde4d3'})}</div>
+      <div class="art pick">${faceSvg(FACE_FILL)}</div>
       <p class="msg" id="kMsg">&nbsp;</p>`;
     KA.innerHTML='';
     KB.querySelectorAll('[data-k]').forEach(nd=>nd.addEventListener('click',()=>hit(nd)));
@@ -647,31 +707,69 @@ function listenGame(){
   ask();
 }
 
-/* 3 — Đếm mắt, mũi, miệng */
+function listenPick(){
+  kHead('Nghe và chọn','Máy đọc một từ tiếng Anh, bé bấm vào hình đúng. Bấm nút loa để nghe lại.');
+  if(kNeed(2))return;
+  const items=deck().items;
+  let sc=0,q=null,lock=false;
+  const ask=()=>{
+    const n=Math.min(3,items.length);
+    const opts=shuffle(items.slice()).slice(0,n);
+    q=opts[Math.random()*opts.length|0];lock=false;
+    KB.innerHTML=`<p class="count score">⭐ ${sc}</p>
+      <div class="row"><button class="btn primary hear" data-act="hear">🔊 Nghe lại</button></div>
+      <div class="kid-grid">${opts.map(o=>`<button class="big-pick" data-act="pk" data-i="${esc(o.en)}" aria-label="${esc(o.en)}">${pic(o)}</button>`).join('')}</div>
+      <p class="msg" id="kMsg">&nbsp;</p>`;
+    KA.innerHTML='';
+    setTimeout(()=>say(q.en),300);
+  };
+  kAct={
+    hear(){say(q.en)},
+    pk(b){
+      if(lock)return;
+      if(b.dataset.i===q.en){
+        lock=true;sc++;b.classList.add('ok');
+        KB.querySelectorAll('.big-pick').forEach(x=>x.disabled=true);
+        $('kMsg').textContent='Đúng rồi! '+q.en+(q.vi?' — '+q.vi:'');$('kMsg').className='msg good';
+        say('Yes! '+q.en);
+        setTimeout(ask,1700);
+      }else{
+        b.classList.add('no');b.disabled=true;
+        $('kMsg').textContent='Thử lại nào';$('kMsg').className='msg bad';
+        say('Try again',.85);
+      }
+    }
+  };
+  ask();
+}
+
+/* 3 — Đếm */
 function countGame(){
-  kHead('Đếm','Đếm xem có bao nhiêu cái rồi bấm vào con số đúng. Máy đọc số và tên bộ phận bằng tiếng Anh.');
+  kHead('Đếm','Đếm xem có bao nhiêu cái rồi bấm vào con số đúng. Máy đọc số và tên bằng tiếng Anh.');
+  if(kNeed(1))return;
+  const items=deck().items;
   let sc=0,cnt=0,w=null,lock=false;
   const next=()=>{
-    w=WORDS[Math.random()*WORDS.length|0];
+    w=items[Math.random()*items.length|0];
     cnt=1+(Math.random()*5|0);lock=false;
-    const opts=shuffle([cnt,...shuffle([1,2,3,4,5,6].filter(x=>x!==cnt)).slice(0,2)]);
+    const opts=shuffle([cnt].concat(shuffle([1,2,3,4,5,6].filter(x=>x!==cnt)).slice(0,2)));
     KB.innerHTML=`<p class="count score">⭐ ${sc}</p>
-      <div class="items">${Array.from({length:cnt},()=>ICON[w.k]).join('')}</div>
-      <div class="row"><button class="btn primary hear" data-act="hear">🔊 How many ${w.pl}?</button></div>
+      <div class="items">${Array.from({length:cnt},()=>pic(w)).join('')}</div>
+      <div class="row"><button class="btn primary hear" data-act="hear">🔊 How many ${esc(plural(w))}?</button></div>
       <div class="kid-grid">${opts.map(o=>`<button class="big-pick" data-act="pk" data-n="${o}">${o}</button>`).join('')}</div>
       <p class="msg" id="kMsg">&nbsp;</p>`;
     KA.innerHTML='';
-    setTimeout(()=>say('How many '+w.pl+'?'),300);
+    setTimeout(()=>say('How many '+plural(w)+'?'),300);
   };
   kAct={
-    hear(){say('How many '+w.pl+'?')},
+    hear(){say('How many '+plural(w)+'?')},
     pk(b){
       if(lock)return;
       if(+b.dataset.n===cnt){
         lock=true;sc++;b.classList.add('ok');
         KB.querySelectorAll('.big-pick').forEach(x=>x.disabled=true);
-        const form=cnt===1?(w.one||w.en):w.pl;
-        $('kMsg').textContent='Đúng rồi! '+NUM[cnt-1]+' '+form+' — '+cnt+' '+w.vi;
+        const form=cnt===1?single(w):plural(w);
+        $('kMsg').textContent='Đúng rồi! '+NUM[cnt-1]+' '+form+(w.vi?' — '+cnt+' '+w.vi:'');
         $('kMsg').className='msg good';
         say(NUM[cnt-1]+' '+form);
         setTimeout(next,2000);
@@ -685,50 +783,212 @@ function countGame(){
   next();
 }
 
-/* 4 — Ghép ảnh với từ, mọi thẻ đều hiện sẵn */
+/* 4 — Ghép ảnh với từ */
 function pairGame(){
   kHead('Ghép đôi','Bấm vào một hình rồi bấm vào từ tiếng Anh đi cùng. Tất cả đều hiện sẵn, bé không phải nhớ.');
-  let L=shuffle(WORDS.slice()),R=shuffle(WORDS.slice());
+  if(kNeed(2))return;
+  const items=deck().items.slice(0,6);
+  let L=shuffle(items.slice()),R=shuffle(items.slice());
   let selL=null,selR=null,badK=null,done=new Set(),lock=false;
   const r=msg=>{
     const cell=(w,side)=>{
-      const ok=done.has(w.k),sel=(side==='l'?selL:selR)===w.k,bad=badK===w.k;
-      return `<button class="pcard${side==='r'?' word':''}${ok?' ok':''}${sel?' sel':''}${bad?' bad':''}"
-        data-act="${side}" data-k="${w.k}"${ok?' disabled':''}>${side==='l'?ICON[w.k]:esc(w.en)}</button>`;
+      const ok=done.has(w.en),sel=(side==='l'?selL:selR)===w.en,bad=badK===w.en;
+      return `<button class="pcard${ok?' ok':''}${sel?' sel':''}${bad?' bad':''}"
+        data-act="${side}" data-i="${esc(w.en)}"${ok?' disabled':''}>${side==='l'?pic(w):esc(w.en)}</button>`;
     };
-    KB.innerHTML=`<p class="count score">Đã ghép: ${done.size} / ${WORDS.length}</p>
+    KB.innerHTML=`<p class="count score">Đã ghép: ${done.size} / ${items.length}</p>
       <div class="pairs">
         <div class="col">${L.map(w=>cell(w,'l')).join('')}</div>
         <div class="col">${R.map(w=>cell(w,'r')).join('')}</div>
       </div>
       <p class="msg${msg?' '+msg[0]:''}" id="kMsg">${msg?msg[1]:'&nbsp;'}</p>`;
-    KA.innerHTML=done.size===WORDS.length?`<button class="btn primary" data-act="again">Chơi lại</button>`:'';
+    KA.innerHTML=done.size===items.length?`<button class="btn primary" data-act="again">Chơi lại</button>`:'';
   };
   const check=()=>{
     if(selL===null||selR===null)return;
-    const a=selL,b=selR;
-    if(a===b){
-      const w=W(a);done.add(a);selL=selR=null;say(w.en);
-      r(done.size===WORDS.length?['good','Giỏi lắm! Bé đã ghép đúng hết.']:['good','Đúng rồi! '+w.en+' — '+w.vi]);
-      if(done.size===WORDS.length)setTimeout(()=>say('Very good!'),900);
+    if(selL===selR){
+      const w=items.find(x=>x.en===selL);done.add(selL);selL=selR=null;say(w.en);
+      r(done.size===items.length?['good','Giỏi lắm! Bé đã ghép đúng hết.']:['good','Đúng rồi! '+w.en+(w.vi?' — '+w.vi:'')]);
+      if(done.size===items.length)setTimeout(()=>say('Very good!'),900);
     }else{
-      lock=true;badK=b;say('Try again',.85);
+      lock=true;badK=selR;say('Try again',.85);
       r(['bad','Chưa đúng, thử lại nhé']);
       setTimeout(()=>{badK=null;selL=selR=null;lock=false;r()},800);
     }
   };
   kAct={
-    l(b){if(lock||done.has(b.dataset.k))return;selL=b.dataset.k;r();say(W(selL).en);check()},
-    r(b){if(lock||done.has(b.dataset.k))return;selR=b.dataset.k;r();say(W(selR).en);check()},
-    again(){L=shuffle(WORDS.slice());R=shuffle(WORDS.slice());selL=selR=badK=null;done=new Set();lock=false;r()}
+    l(b){if(lock||done.has(b.dataset.i))return;selL=b.dataset.i;r();say(selL);check()},
+    r(b){if(lock||done.has(b.dataset.i))return;selR=b.dataset.i;r();say(selR);check()},
+    again(){L=shuffle(items.slice());R=shuffle(items.slice());selL=selR=badK=null;done=new Set();lock=false;r()}
   };
   r();
 }
 
+/* ===== Bảng nhập bộ từ, ảnh, xuất / nhập ===== */
+const WR=$('wRows'),WM=$('wMsg');
+let imgTarget=-1;
+const wSay=(txt,cls)=>{WM.textContent=txt||' ';WM.className='msg'+(cls?' '+cls:'')};
+
+// thu nhỏ ảnh trước khi lưu, nếu không localStorage sẽ tràn
+const shrink=(file,max)=>new Promise((res,rej)=>{
+  const fr=new FileReader();
+  fr.onerror=()=>rej(new Error('Không đọc được tệp'));
+  fr.onload=()=>{
+    const im=new Image();
+    im.onerror=()=>rej(new Error('Tệp này không phải ảnh'));
+    im.onload=()=>{
+      const k=Math.min(1,(max||240)/Math.max(im.width,im.height));
+      const w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k));
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      const x=c.getContext('2d');
+      x.fillStyle='#ffffff';x.fillRect(0,0,w,h);
+      x.drawImage(im,0,0,w,h);
+      res(c.toDataURL('image/jpeg',.82));
+    };
+    im.src=fr.result;
+  };
+  fr.readAsDataURL(file);
+});
+
+const renderWords=()=>{
+  const d=deck();
+  $('deckSel').innerHTML=allDecks().map(x=>
+    `<option value="${esc(x.id)}"${x.id===d.id?' selected':''}>${esc(x.name)}</option>`).join('');
+  $('wLede').textContent=d.builtin
+    ? 'Chủ đề này dùng hình vẽ sẵn trong trang nên không sửa được — nhưng nhờ vậy mới chơi được trò Tô màu. Bấm “+ Chủ đề mới” để tự nhập từ và ảnh của bạn.'
+    : 'Mỗi dòng một từ: tiếng Anh, nghĩa tiếng Việt, và dạng số nhiều (để trống thì tự thêm “s”). Bấm ô vuông bên trái để chọn ảnh — ảnh được thu nhỏ trước khi lưu nên không sợ nặng.';
+  if(d.builtin){
+    WR.innerHTML=`<div class="ro">${d.items.map(i=>`<span>${esc(i.en)} — ${esc(i.vi)}</span>`).join('')}</div>`;
+    $('wAdd').innerHTML='';
+  }else{
+    WR.innerHTML=d.items.map((it,i)=>`
+      <div class="wrow">
+        <button class="thumb" data-w="img" data-i="${i}" aria-label="Chọn ảnh cho ${esc(it.en||'từ này')}">${
+          it.img?`<img src="${it.img}" alt="">`:'<span>+ ảnh</span>'}</button>
+        <div class="wfields">
+          <input class="inp" data-f="en" data-i="${i}" value="${esc(it.en||'')}" placeholder="eye" aria-label="Từ tiếng Anh">
+          <input class="inp" data-f="vi" data-i="${i}" value="${esc(it.vi||'')}" placeholder="mắt" aria-label="Nghĩa tiếng Việt">
+          <input class="inp" data-f="pl" data-i="${i}" value="${esc(it.pl||'')}" placeholder="eyes" aria-label="Số nhiều">
+        </div>
+        <button class="btn x" data-w="rm" data-i="${i}" aria-label="Xóa từ ${esc(it.en||'')}">✕</button>
+      </div>`).join('')||'<p class="count" style="margin-top:12px">Chưa có từ nào. Bấm “+ Thêm từ”.</p>';
+    $('wAdd').innerHTML='<button class="btn primary" data-w="add">+ Thêm từ</button>';
+  }
+  $('deckMark').textContent=d.name;
+  $('tab-color').hidden=!d.builtin;
+};
+
+const saveNote=()=>{const e=persist();if(e)wSay(e,'bad')};
+
+const wordActs={
+  new(){
+    const name=prompt('Tên chủ đề mới (ví dụ: Con vật, Đồ ăn, Màu sắc)','Chủ đề mới');
+    if(!name)return;
+    const d={id:uid(),name:name.trim()||'Chủ đề mới',items:[{en:'',vi:'',pl:'',img:''}]};
+    store.decks.push(d);store.active=d.id;
+    renderWords();saveNote();wSay('Đã tạo chủ đề “'+d.name+'”. Nhập từ và chọn ảnh bên dưới.','good');
+  },
+  rename(){
+    const d=deck();
+    if(d.builtin)return wSay('Chủ đề làm sẵn không đổi tên được.','bad');
+    const name=prompt('Tên chủ đề',d.name);
+    if(!name)return;
+    d.name=name.trim()||d.name;renderWords();saveNote();
+  },
+  del(){
+    const d=deck();
+    if(d.builtin)return wSay('Chủ đề làm sẵn không xóa được.','bad');
+    if(!confirm('Xóa chủ đề “'+d.name+'” cùng toàn bộ từ và ảnh trong đó?'))return;
+    store.decks=store.decks.filter(x=>x.id!==d.id);store.active='face';
+    renderWords();saveNote();wSay('Đã xóa chủ đề.','good');
+  },
+  add(){
+    deck().items.push({en:'',vi:'',pl:'',img:''});renderWords();saveNote();
+  },
+  rm(b){
+    deck().items.splice(+b.dataset.i,1);renderWords();saveNote();
+  },
+  img(b){
+    imgTarget=+b.dataset.i;$('imgFile').value='';$('imgFile').click();
+  },
+  exp(){
+    const d=deck();
+    if(d.builtin)return wSay('Chủ đề khuôn mặt đã có sẵn trong trang, không cần xuất. Hãy xuất chủ đề bạn tự tạo.','bad');
+    const data={app:'goc-hoc-vui',v:1,deck:{name:d.name,items:d.items.map(i=>({en:i.en,vi:i.vi,pl:i.pl,one:i.one,img:i.img}))}};
+    try{
+      const url=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
+      const a=document.createElement('a');a.href=url;a.download='bo-tu-'+slug(d.name)+'.json';
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+      wSay('Đã tải file bo-tu-'+slug(d.name)+'.json về máy. Mở trang này ở máy khác rồi bấm “Nhập từ file” để dùng lại.','good');
+    }catch(_){wSay('Không xuất được file trên trình duyệt này.','bad')}
+  },
+  imp(){$('impFile').value='';$('impFile').click()}
+};
+
+$('v-words').addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-w]');
+  if(b&&wordActs[b.dataset.w])wordActs[b.dataset.w](b);
+});
+$('deckSel').addEventListener('change',e=>{
+  store.active=e.target.value;renderWords();saveNote();wSay('');
+});
+WR.addEventListener('input',e=>{
+  const t=e.target;
+  if(!t.classList.contains('inp'))return;
+  const it=deck().items[+t.dataset.i];
+  if(it)it[t.dataset.f]=t.value;
+});
+WR.addEventListener('change',e=>{
+  if(e.target.classList.contains('inp')){$('deckMark').textContent=deck().name;saveNote()}
+});
+$('imgFile').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];
+  if(!f||imgTarget<0)return;
+  wSay('Đang xử lý ảnh…');
+  try{
+    const url=await shrink(f,240);
+    const it=deck().items[imgTarget];
+    if(it){it.img=url;renderWords();const err=persist();wSay(err||'Đã thêm ảnh.',err?'bad':'good')}
+  }catch(err){wSay(err.message||'Không đọc được ảnh.','bad')}
+  imgTarget=-1;
+});
+$('impFile').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0];
+  if(!f)return;
+  const fr=new FileReader();
+  fr.onerror=()=>wSay('Không đọc được file.','bad');
+  fr.onload=()=>{
+    let o;
+    try{o=JSON.parse(fr.result)}catch(_){return wSay('File này không đúng định dạng bộ từ.','bad')}
+    const list=o&&o.deck?[o.deck]:(o&&Array.isArray(o.decks)?o.decks:null);
+    if(!list||!list.length)return wSay('File này không chứa bộ từ nào.','bad');
+    let last=null,n=0;
+    list.forEach(src=>{
+      if(!src||!Array.isArray(src.items))return;
+      const items=src.items.filter(i=>i&&(i.en||i.vi)).map(i=>({
+        en:String(i.en||''),vi:String(i.vi||''),pl:String(i.pl||''),
+        one:i.one?String(i.one):'',img:typeof i.img==='string'&&/^data:image\//.test(i.img)?i.img:''
+      }));
+      if(!items.length)return;
+      last={id:uid(),name:String(src.name||'Chủ đề đã nhập'),items:items};
+      store.decks.push(last);n++;
+    });
+    if(!n)return wSay('File này không chứa từ nào dùng được.','bad');
+    store.active=last.id;
+    renderWords();
+    const err=persist();
+    wSay(err||('Đã nhập '+n+' chủ đề. Đang dùng “'+last.name+'”.'),err?'bad':'good');
+  };
+  fr.readAsText(f);
+});
+
+/* ===== Chuyển tab ===== */
 const games={flash,quiz,anagram};
 const kidGames={color:colorGame,listen:listenGame,count:countGame,match:pairGame};
 function show(v){
   if(synth)synth.cancel();
+  if(v==='color'&&!deck().builtin)v='listen';
   $('v-maze').hidden=v!=='maze';
   $('v-game').hidden=!games[v];
   $('v-kid').hidden=!kidGames[v];
@@ -737,16 +997,12 @@ function show(v){
   if(games[v])games[v]();
   else if(kidGames[v]){kAct={};KB.innerHTML='';KA.innerHTML='';kidGames[v]()}
   else if(v==='maze')draw();
+  else if(v==='words'){renderWords();wSay('')}
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>show(t.dataset.v)));
 
-const ta=$('wordsTa'),wc=()=>{const w=parse(ta.value);$('wCount').textContent=`${w.length} từ, trong đó ${w.filter(x=>x.d).length} từ có nghĩa.`};
-ta.value=saved||DEF;wc();ta.addEventListener('input',wc);
-const saveWords=()=>{words=parse(ta.value);try{localStorage.setItem('wordset',ta.value)}catch(_){}wc();$('wCount').textContent+=' Đã lưu.'};
-$('saveW').addEventListener('click',saveWords);
-$('defW').addEventListener('click',()=>{ta.value=DEF;saveWords()});
-
-show('color');
+renderWords();
+show(deck().builtin?'color':'listen');
 })();
 </script>
 </body>
